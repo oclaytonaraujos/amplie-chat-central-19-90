@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Smartphone, Wifi, WifiOff, RefreshCw, QrCode, Settings } from 'lucide-react';
+import { Smartphone, Wifi, WifiOff, RefreshCw, QrCode, Settings, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useEvolutionApi } from '@/hooks/useEvolutionApi';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CreateInstanceDialog } from './CreateInstanceDialog';
 
 export function WhatsAppConnectionsReal() {
   const { 
@@ -22,6 +23,7 @@ export function WhatsAppConnectionsReal() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('desconhecido');
   const [verificandoStatus, setVerificandoStatus] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Verificar status da conexão ao carregar
   useEffect(() => {
@@ -79,6 +81,11 @@ export function WhatsAppConnectionsReal() {
     }
   };
 
+  const handleInstanceCreated = () => {
+    // Recarregar configurações e verificar status
+    window.location.reload();
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CONNECTED':
@@ -134,12 +141,46 @@ export function WhatsAppConnectionsReal() {
 
   if (!config) {
     return (
-      <Alert>
-        <Settings className="h-4 w-4" />
-        <AlertDescription>
-          Nenhuma configuração Evolution API encontrada. Configure sua instância Evolution API primeiro.
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Conexões WhatsApp</h2>
+            <p className="text-gray-600">Crie e gerencie suas conexões com o WhatsApp via Evolution API</p>
+          </div>
+        </div>
+
+        <Alert>
+          <Settings className="h-4 w-4" />
+          <AlertDescription>
+            Nenhuma configuração Evolution API encontrada. Crie sua primeira instância para começar.
+          </AlertDescription>
+        </Alert>
+
+        <Card>
+          <CardContent className="text-center py-12">
+            <Smartphone className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Primeira Conexão WhatsApp
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Crie sua primeira instância WhatsApp através do AmplieChat para começar a atender seus clientes
+            </p>
+            <Button 
+              onClick={() => setShowCreateDialog(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Criar Primeira Instância
+            </Button>
+          </CardContent>
+        </Card>
+
+        <CreateInstanceDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onInstanceCreated={handleInstanceCreated}
+        />
+      </div>
     );
   }
 
@@ -150,6 +191,14 @@ export function WhatsAppConnectionsReal() {
           <h2 className="text-2xl font-bold text-gray-900">Conexões WhatsApp</h2>
           <p className="text-gray-600">Gerencie suas conexões com o WhatsApp via Evolution API</p>
         </div>
+        <Button 
+          onClick={() => setShowCreateDialog(true)}
+          variant="outline"
+          className="border-green-600 text-green-600 hover:bg-green-50"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nova Instância
+        </Button>
       </div>
 
       <Card>
@@ -235,6 +284,12 @@ export function WhatsAppConnectionsReal() {
           )}
         </CardContent>
       </Card>
+
+      <CreateInstanceDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onInstanceCreated={handleInstanceCreated}
+      />
     </div>
   );
 }
